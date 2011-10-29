@@ -1,9 +1,7 @@
 package net.openplexus;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
 
 /**
  * Diese Klasse nimmt einen String entgegen und extrahiert die beschriebenen Module.
@@ -53,17 +51,7 @@ public class ModuleExtractor {
     private void findCollocations() {
         for (Module m : modules) {
             String tokens[] = m.description.split(" ");
-
-            for (int i = 0; i < tokens.length - 3; i++) {
-                String collocation = tokens[i] + " " + tokens[i + 1] + " " + tokens[i + 2] + " " + tokens[i + 3];
-                collocation = collocation.replaceAll("\n", "");
-
-                if (m.collocations.containsKey(collocation)) {
-                    m.collocations.put(collocation, m.collocations.get(collocation) + 1);
-                } else {
-                    m.collocations.put(collocation, 1);
-                }
-            }
+            CollocationFilter filter = new CollocationFilter(tokens, 5);
         }
     }
 }
