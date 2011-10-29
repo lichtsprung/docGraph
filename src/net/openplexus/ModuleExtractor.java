@@ -14,14 +14,15 @@ public class ModuleExtractor {
     private List<Module> modules;
     private String text;
     private int type;
+    private Vocabulary vocabulary;
 
     public ModuleExtractor(String text, int type) {
         this.text = text;
         this.type = type;
         modules = new ArrayList<Module>();
+        vocabulary = new Vocabulary();
         strip();
         findCollocations();
-
     }
 
     /**
@@ -41,6 +42,9 @@ public class ModuleExtractor {
             for (int i = 1; i < tmp.length; i++) {
                 String name = tmp[i].substring(0, tmp[i].indexOf(separator));
                 String description = tmp[i].substring(tmp[i].indexOf(separator), tmp[i].length());
+                description = description.replaceAll("\n", " ");
+                description = description.replaceAll("•", "");
+                description = description.replaceAll("_", "");
                 name = name.replaceAll(":", "");
 
                 modules.add(new Module(name, description));
@@ -51,7 +55,11 @@ public class ModuleExtractor {
     private void findCollocations() {
         for (Module m : modules) {
             String tokens[] = m.description.split(" ");
+            System.out.println("Finding collocations for class: " + m.name);
+
             CollocationFilter filter = new CollocationFilter(tokens, 5);
+            m.collocations.addAll(filter.getCollocations());
+            vocabulary.addTermCollection(filter.getUniqueCollocations());
         }
     }
 }

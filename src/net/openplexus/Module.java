@@ -1,6 +1,6 @@
 package net.openplexus;
 
-import java.util.HashMap;
+import org.apache.commons.collections.bag.HashBag;
 
 /**
  *
@@ -9,13 +9,13 @@ import java.util.HashMap;
 public class Module {
     protected String name;
     protected String description;
-    protected HashMap<String, Integer> collocations;
+    protected HashBag collocations;
     
 
     public Module(String name, String description) {
         this.name = name;
         this.description = description;
-        collocations = new HashMap<String, Integer>();
+        collocations = new HashBag();
     }
     
     
