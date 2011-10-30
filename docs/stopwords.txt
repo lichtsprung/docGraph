@@ -1,0 +1,2 @@
+der,die,das,soll,sollen,sollte,sollten,welcher,welche,welches,welchen,ggf.,SWS,durch,von,auf,über,Kürzel,des,keiner,keine,keines,des,aus,ist,dass,und,alle,aller,alles,allen,für,als,zu,zum,zur,Aus,Den,den,Am,An,am,an,in,einem,einer,eines,im,,+,-,_,/,(,)
+

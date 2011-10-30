@@ -26,7 +26,9 @@ public class TextStripper {
 
                 COSDocument document = parser.getDocument();
                 PDFTextStripper stripper = new PDFTextStripper();
-                return stripper.getText(new PDDocument(document));
+                String text = stripper.getText(new PDDocument(document));
+                document.close();
+                return text;
             } catch (FileNotFoundException ex) {
                 Logger.getLogger(TextStripper.class.getName()).log(Level.SEVERE, null, ex);
             } catch (IOException ex) {

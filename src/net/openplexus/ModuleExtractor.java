@@ -42,9 +42,14 @@ public class ModuleExtractor {
             for (int i = 1; i < tmp.length; i++) {
                 String name = tmp[i].substring(0, tmp[i].indexOf(separator));
                 String description = tmp[i].substring(tmp[i].indexOf(separator), tmp[i].length());
+                description = description.replaceAll("-\n", "");
                 description = description.replaceAll("\n", " ");
                 description = description.replaceAll("•", "");
                 description = description.replaceAll("_", "");
+                description = description.replaceAll("[0-9]*", "");
+                description = description.replaceAll("[A-Z]. ", "");
+                description = description.replaceAll("\"", "");
+
                 name = name.replaceAll(":", "");
 
                 modules.add(new Module(name, description));
@@ -57,9 +62,8 @@ public class ModuleExtractor {
             String tokens[] = m.description.split(" ");
             System.out.println("Finding collocations for class: " + m.name);
 
-            CollocationFilter filter = new CollocationFilter(tokens, 5);
-            m.collocations.addAll(filter.getCollocations());
-            vocabulary.addTermCollection(filter.getUniqueCollocations());
+            CollocationFilter filter = new CollocationFilter(tokens, 1.3);
+            System.out.println(filter.collocationsToString());
         }
     }
 
