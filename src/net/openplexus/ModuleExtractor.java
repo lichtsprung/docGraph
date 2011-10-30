@@ -62,4 +62,8 @@ public class ModuleExtractor {
             vocabulary.addTermCollection(filter.getUniqueCollocations());
         }
     }
+
+    public List<Module> getModules() {
+        return modules;
+    }
 }
