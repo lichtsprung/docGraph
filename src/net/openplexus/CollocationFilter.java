@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.collections.bag.HashBag;
@@ -213,118 +214,7 @@ public class CollocationFilter {
         return sb.toString();
     }
 
-    private interface Tuple {
-
-        boolean isC2();
-
-        boolean isC3();
-    }
-
-    private class Tuple2 implements Tuple {
-
-        private String termA;
-        private String termB;
-
-        public Tuple2(String termA, String termB) {
-            this.termA = termA;
-            this.termB = termB;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            final Tuple2 other = (Tuple2) obj;
-            if ((this.termA == null) ? (other.termA != null) : !this.termA.equals(other.termA)) {
-                return false;
-            }
-            if ((this.termB == null) ? (other.termB != null) : !this.termB.equals(other.termB)) {
-                return false;
-            }
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            int hash = 5;
-            hash = 31 * hash + (this.termA != null ? this.termA.hashCode() : 0);
-            hash = 31 * hash + (this.termB != null ? this.termB.hashCode() : 0);
-            return hash;
-        }
-
-        @Override
-        public String toString() {
-            return "Tuple2{" + "termA=" + termA + ", termB=" + termB + '}';
-        }
-
-        @Override
-        public boolean isC2() {
-            return true;
-        }
-
-        @Override
-        public boolean isC3() {
-            return false;
-        }
-    }
-
-    private class Tuple3 implements Tuple {
-
-        private String termA, termB, termC;
-
-        public Tuple3(String termA, String termB, String termC) {
-            this.termA = termA;
-            this.termB = termB;
-            this.termC = termC;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            final Tuple3 other = (Tuple3) obj;
-            if ((this.termA == null) ? (other.termA != null) : !this.termA.equals(other.termA)) {
-                return false;
-            }
-            if ((this.termB == null) ? (other.termB != null) : !this.termB.equals(other.termB)) {
-                return false;
-            }
-            if ((this.termC == null) ? (other.termC != null) : !this.termC.equals(other.termC)) {
-                return false;
-            }
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            int hash = 3;
-            hash = 71 * hash + (this.termA != null ? this.termA.hashCode() : 0);
-            hash = 71 * hash + (this.termB != null ? this.termB.hashCode() : 0);
-            hash = 71 * hash + (this.termC != null ? this.termC.hashCode() : 0);
-            return hash;
-        }
-
-        @Override
-        public String toString() {
-            return "Tuple3{" + "termA=" + termA + ", termB=" + termB + ", termC=" + termC + '}';
-        }
-
-        @Override
-        public boolean isC2() {
-            return false;
-        }
-
-        @Override
-        public boolean isC3() {
-            return true;
-        }
+    public Set<Tuple> getCollocations() {
+        return likelyhoods.keySet();
     }
 }

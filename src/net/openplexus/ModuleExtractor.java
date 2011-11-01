@@ -51,6 +51,7 @@ public class ModuleExtractor {
                 description = description.replaceAll("\"", "");
                 description = description.replaceAll(",", "");
                 description = description.replaceAll("\\.", "");
+                description = description.replaceAll(";", "");
 
                 name = name.replaceAll(":", "");
 
