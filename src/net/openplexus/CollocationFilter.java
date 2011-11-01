@@ -5,9 +5,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,7 +24,7 @@ public class CollocationFilter {
 
     private String[] tokens;
     private double threshold;
-    private HashBag collocations;
+    private HashBag collocations2, collocations3;
     private HashMap<Tuple, Double> likelyhoods;
     private HashSet<String> terms;
     private HashSet<String> stopWords;
@@ -30,7 +32,8 @@ public class CollocationFilter {
     public CollocationFilter(String[] tokens, double threshold) {
         this.tokens = tokens;
         this.threshold = threshold;
-        collocations = new HashBag();
+        collocations2 = new HashBag();
+        collocations3 = new HashBag();
         likelyhoods = new HashMap<Tuple, Double>();
         terms = new HashSet<String>();
         stopWords = new HashSet<String>();
@@ -53,7 +56,7 @@ public class CollocationFilter {
                     && !stopWords.contains(tokens[i])
                     && !stopWords.contains(tokens[i + 1])) {
                 Tuple2 t = new Tuple2(tokens[i], tokens[i + 1]);
-                collocations.add(t);
+                collocations2.add(t);
             }
         }
 
@@ -64,8 +67,8 @@ public class CollocationFilter {
                     && !stopWords.contains(tokens[i])
                     && !stopWords.contains(tokens[i + 1])
                     && !stopWords.contains(tokens[i + 2])) {
-                Tuple3 t = new Tuple3(tokens[i], tokens[i + 1], tokens[i + 1]);
-                collocations.add(t);
+                Tuple3 t = new Tuple3(tokens[i], tokens[i + 1], tokens[i + 2]);
+                collocations3.add(t);
             }
         }
     }
@@ -76,16 +79,29 @@ public class CollocationFilter {
     private double calcSig(String a, String b) {
         double countA = 0;
         double countB = 0;
-        double countAB = collocations.getCount(new Tuple2(a, b));
-        double countN = collocations.size();
+        double countAB = collocations2.getCount(new Tuple2(a, b));
+        double countN = collocations2.size();
 
-        for (String tmp : terms) {
-            countA += collocations.getCount(new Tuple2(a, tmp));
-        }
 
-        for (String tmp : terms) {
-            countB += collocations.getCount(new Tuple2(tmp, b));
+        List<Tuple2> tuplesA = new ArrayList<Tuple2>(collocations2.size());
+
+        for (Object o : collocations2.uniqueSet()) {
+            Tuple2 t = (Tuple2) o;
+            if (t.termA.equalsIgnoreCase(a)) {
+                tuplesA.add(t);
+            }
         }
+        countA = tuplesA.size();
+
+        List<Tuple2> tuplesB = new ArrayList<Tuple2>(collocations2.size());
+
+        for (Object o : collocations2.uniqueSet()) {
+            Tuple2 t = (Tuple2) o;
+            if (t.termB.equalsIgnoreCase(b)) {
+                tuplesB.add(t);
+            }
+        }
+        countB = tuplesB.size();
 
         double x = (countA * countB) / countN;
         double sum = 0;
@@ -103,26 +119,38 @@ public class CollocationFilter {
         double countA = 0;
         double countB = 0;
         double countC = 0;
-        double countABC = collocations.getCount(new Tuple3(a, b, c));
-        double countN = collocations.size();
+        double countABC = collocations3.getCount(new Tuple3(a, b, c));
+        double countN = collocations3.size();
 
-        for (String tmpB : terms) {
-            for (String tmpC : terms) {
-                countA += collocations.getCount(new Tuple3(a, tmpB, tmpC));
+        List<Tuple3> tuplesA = new ArrayList<Tuple3>(collocations3.size());
+
+        for (Object o : collocations3.uniqueSet()) {
+            Tuple3 t = (Tuple3) o;
+            if (t.termA.equalsIgnoreCase(a)) {
+                tuplesA.add(t);
             }
         }
+        countA = tuplesA.size();
 
-        for (String tmpA : terms) {
-            for (String tmpC : terms) {
-                countB += collocations.getCount(new Tuple3(tmpA, b, tmpC));
+        List<Tuple3> tuplesB = new ArrayList<Tuple3>(collocations3.size());
+
+        for (Object o : collocations3.uniqueSet()) {
+            Tuple3 t = (Tuple3) o;
+            if (t.termB.equalsIgnoreCase(b)) {
+                tuplesB.add(t);
             }
         }
+        countB = tuplesB.size();
 
-        for (String tmpA : terms) {
-            for (String tmpB : terms) {
-                countC += collocations.getCount(new Tuple3(tmpA, tmpB, c));
+        List<Tuple3> tuplesC = new ArrayList<Tuple3>(collocations3.size());
+
+        for (Object o : collocations3.uniqueSet()) {
+            Tuple3 t = (Tuple3) o;
+            if (t.termC.equalsIgnoreCase(c)) {
+                tuplesC.add(t);
             }
         }
+        countC = tuplesC.size();
 
         double x = (countA * countB * countC) / countN;
         double sum = 0;
@@ -147,27 +175,20 @@ public class CollocationFilter {
     private void calcSig() {
         System.out.println("Term Count: " + terms.size());
         System.out.println("Finding bigrams");
-        for (String a : terms) {
-            for (String b : terms) {
-                Tuple2 t = new Tuple2(a, b);
-                double sig = calcSig(a, b);
-                if (sig > threshold) {
-                    likelyhoods.put(t, sig);
-                }
+        for (Object o : collocations2.uniqueSet()) {
+            Tuple2 t = (Tuple2) o;
+            double sig = calcSig(t.termA, t.termB);
+            if (sig > threshold) {
+                likelyhoods.put(t, sig);
             }
         }
 
         System.out.println("Finding trigrams");
-        for (String a : terms) {
-            for (String b : terms) {
-                for (String c : terms) {
-
-                    double sig = calcSig(a, b, c);
-                    if (sig > threshold) {
-                        Tuple3 t = new Tuple3(a, b, c);
-                        likelyhoods.put(t, sig);
-                    }
-                }
+        for (Object o : collocations3) {
+            Tuple3 t = (Tuple3) o;
+            double sig = calcSig(t.termA, t.termB, t.termC);
+            if (sig > threshold) {
+                likelyhoods.put(t, sig);
             }
         }
     }
@@ -193,6 +214,10 @@ public class CollocationFilter {
     }
 
     private interface Tuple {
+
+        boolean isC2();
+
+        boolean isC3();
     }
 
     private class Tuple2 implements Tuple {
@@ -234,6 +259,16 @@ public class CollocationFilter {
         @Override
         public String toString() {
             return "Tuple2{" + "termA=" + termA + ", termB=" + termB + '}';
+        }
+
+        @Override
+        public boolean isC2() {
+            return true;
+        }
+
+        @Override
+        public boolean isC3() {
+            return false;
         }
     }
 
@@ -280,6 +315,16 @@ public class CollocationFilter {
         @Override
         public String toString() {
             return "Tuple3{" + "termA=" + termA + ", termB=" + termB + ", termC=" + termC + '}';
+        }
+
+        @Override
+        public boolean isC2() {
+            return false;
+        }
+
+        @Override
+        public boolean isC3() {
+            return true;
         }
     }
 }

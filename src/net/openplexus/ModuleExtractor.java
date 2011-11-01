@@ -49,6 +49,8 @@ public class ModuleExtractor {
                 description = description.replaceAll("[0-9]*", "");
                 description = description.replaceAll("[A-Z]. ", "");
                 description = description.replaceAll("\"", "");
+                description = description.replaceAll(",", "");
+                description = description.replaceAll("\\.", "");
 
                 name = name.replaceAll(":", "");
 
@@ -62,7 +64,7 @@ public class ModuleExtractor {
             String tokens[] = m.description.split(" ");
             System.out.println("Finding collocations for class: " + m.name);
 
-            CollocationFilter filter = new CollocationFilter(tokens, 1.3);
+            CollocationFilter filter = new CollocationFilter(tokens, 1.75);
             System.out.println(filter.collocationsToString());
         }
     }
