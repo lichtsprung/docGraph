@@ -24,15 +24,17 @@ import org.apache.commons.collections.bag.HashBag;
 public class CollocationFilter {
 
     private String[] tokens;
+    private double thresholdP;
     private double threshold;
-    private HashBag collocations2, collocations3;
+    private HashBag collocations2, collocations3, collocations;
     private HashMap<Tuple, Double> likelyhoods;
     private HashSet<String> terms;
     private HashSet<String> stopWords;
 
-    public CollocationFilter(String[] tokens, double threshold) {
+    public CollocationFilter(String[] tokens, double thresholdP) {
         this.tokens = tokens;
-        this.threshold = threshold;
+        this.thresholdP = thresholdP;
+        collocations = new HashBag();
         collocations2 = new HashBag();
         collocations3 = new HashBag();
         likelyhoods = new HashMap<Tuple, Double>();
@@ -75,7 +77,7 @@ public class CollocationFilter {
     }
 
     /**
-     * Berechnet Signifikanz einer Kollokation mit log-likelyhood = sig(A,B) = -log(1-exp(-x)*sum(1/i!*x^1))/log n.
+     * Berechnet Signifikanz einer Kollokation mit log-likelyhood = sig(A,B) = -log(1-exp(-x)*sum(1/i!*x^i))/log n.
      */
     private double calcSig(String a, String b) {
         double countA = 0;
@@ -179,19 +181,35 @@ public class CollocationFilter {
         for (Object o : collocations2.uniqueSet()) {
             Tuple2 t = (Tuple2) o;
             double sig = calcSig(t.termA, t.termB);
-            if (sig > threshold) {
-                likelyhoods.put(t, sig);
-            }
+            likelyhoods.put(t, sig);
         }
 
         System.out.println("Finding trigrams");
         for (Object o : collocations3) {
             Tuple3 t = (Tuple3) o;
             double sig = calcSig(t.termA, t.termB, t.termC);
-            if (sig > threshold) {
-                likelyhoods.put(t, sig);
+            likelyhoods.put(t, sig);
+        }
+
+        double minSig = getMinSig(likelyhoods);
+        double maxSig = getMaxSig(likelyhoods);
+        double diff = maxSig - minSig;
+        threshold = minSig + thresholdP * diff;
+        System.out.println("Threshold = " + threshold);
+
+        collocations.addAll(collocations2);
+        collocations.addAll(collocations3);
+
+        for (Tuple t : likelyhoods.keySet()) {
+            if (likelyhoods.get(t) < threshold) {
+                collocations.remove(t);
             }
         }
+        
+        for(Object o : collocations){
+            System.out.println(o);
+        }
+
     }
 
     private void loadStopwords() {
@@ -206,15 +224,23 @@ public class CollocationFilter {
         }
     }
 
-    public String collocationsToString() {
-        StringBuilder sb = new StringBuilder();
-        for (Entry<Tuple, Double> e : likelyhoods.entrySet()) {
-            sb.append(e.getKey()).append(" : ").append(e.getValue()).append("; ");
+    private double getMinSig(HashMap<Tuple, Double> likelyhoods) {
+        double min = Double.MAX_VALUE;
+        for (Tuple t : likelyhoods.keySet()) {
+            if (likelyhoods.get(t) < min) {
+                min = likelyhoods.get(t);
+            }
         }
-        return sb.toString();
+        return min;
     }
 
-    public Set<Tuple> getCollocations() {
-        return likelyhoods.keySet();
+    private double getMaxSig(HashMap<Tuple, Double> likelyhoods) {
+        double max = Double.MIN_VALUE;
+        for (Tuple t : likelyhoods.keySet()) {
+            if (likelyhoods.get(t) > max) {
+                max = likelyhoods.get(t);
+            }
+        }
+        return max;
     }
 }

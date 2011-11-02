@@ -52,10 +52,11 @@ public class ModuleExtractor {
                 description = description.replaceAll(",", "");
                 description = description.replaceAll("\\.", "");
                 description = description.replaceAll(";", "");
+                description = description.replaceAll(":", "");
 
                 name = name.replaceAll(":", "");
 
-                modules.add(new Module(name, description));
+                modules.add(new Module(name, description, vocabulary));
             }
         }
     }
@@ -63,10 +64,13 @@ public class ModuleExtractor {
     private void findCollocations() {
         for (Module m : modules) {
             String tokens[] = m.description.split(" ");
+            for (int i = 0; i < tokens.length; i++) {
+                tokens[i].trim();
+            }
             System.out.println("Finding collocations for class: " + m.name);
 
-            CollocationFilter filter = new CollocationFilter(tokens, 1.75);
-            System.out.println(filter.collocationsToString());
+            CollocationFilter filter = new CollocationFilter(tokens, 0.80);
+
         }
     }
 
