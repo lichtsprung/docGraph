@@ -10,8 +10,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.collections.bag.HashBag;
@@ -27,19 +25,21 @@ public class CollocationFilter {
     private double thresholdP;
     private double threshold;
     private HashBag collocations2, collocations3, collocations;
-    private HashMap<Tuple, Double> likelyhoods;
+    private HashMap<Tuple, Double> likelihoods;
     private HashSet<String> terms;
     private HashSet<String> stopWords;
+    private GermanStemmer stemmer;
 
-    public CollocationFilter(String[] tokens, double thresholdP) {
-        this.tokens = tokens;
+    public CollocationFilter(Module m, double thresholdP) {
+        this.tokens = m.tokens;
         this.thresholdP = thresholdP;
         collocations = new HashBag();
         collocations2 = new HashBag();
         collocations3 = new HashBag();
-        likelyhoods = new HashMap<Tuple, Double>();
+        likelihoods = new HashMap<Tuple, Double>();
         terms = new HashSet<String>();
         stopWords = new HashSet<String>();
+        stemmer = new GermanStemmer();
         loadStopwords();
         collectTuples();
         calcSig();
@@ -77,7 +77,10 @@ public class CollocationFilter {
     }
 
     /**
-     * Berechnet Signifikanz einer Kollokation mit log-likelyhood = sig(A,B) = -log(1-exp(-x)*sum(1/i!*x^i))/log n.
+     * Berechnet Signifikanz einer Kollokation mit log-likelihood = sig(A,B) = -log(1-exp(-x)*sum(1/i!*x^i))/log n.
+     * @param a der Term A
+     * @param b der Term B
+     * @return der Signifikanzwert dieser Kollokation
      */
     private double calcSig(String a, String b) {
         double countA = 0;
@@ -85,6 +88,8 @@ public class CollocationFilter {
         double countAB = collocations2.getCount(new Tuple2(a, b));
         double countN = collocations2.size();
 
+
+        // Zählen, wie häufig es ein Bigramm gibt, das mit dem Term A beginnt.
 
         List<Tuple2> tuplesA = new ArrayList<Tuple2>(collocations2.size());
 
@@ -96,6 +101,8 @@ public class CollocationFilter {
         }
         countA = tuplesA.size();
 
+        // Zählen, wie häufig es ein Bigramm gibt, das mit dem Term B endet.
+
         List<Tuple2> tuplesB = new ArrayList<Tuple2>(collocations2.size());
 
         for (Object o : collocations2.uniqueSet()) {
@@ -105,6 +112,8 @@ public class CollocationFilter {
             }
         }
         countB = tuplesB.size();
+
+        // Ausrechnen der Hilfsvariablen aus bestimmen der log-likelihood des Bigramms (A,B).
 
         double x = (countA * countB) / countN;
         double sum = 0;
@@ -118,6 +127,14 @@ public class CollocationFilter {
         return -Math.log(num) / Math.log(countN);
     }
 
+    /**
+     * Berechnet die log-likelihood der Trigramms (A,B,C).
+     * 
+     * @param a der Term A
+     * @param b der Term B
+     * @param c der Term C
+     * @return die log-likelihood der Kollokation für das Modul
+     */
     private double calcSig(String a, String b, String c) {
         double countA = 0;
         double countB = 0;
@@ -175,24 +192,28 @@ public class CollocationFilter {
         }
     }
 
+    /**
+     * Berechnet für alle Kollokationen (Bi- und Trigramme) innerhalb eines Moduls
+     * die log-likelihood der einzelnen Termkombinationen.
+     */
     private void calcSig() {
         System.out.println("Term Count: " + terms.size());
         System.out.println("Finding bigrams");
         for (Object o : collocations2.uniqueSet()) {
             Tuple2 t = (Tuple2) o;
             double sig = calcSig(t.termA, t.termB);
-            likelyhoods.put(t, sig);
+            likelihoods.put(t, sig);
         }
 
         System.out.println("Finding trigrams");
         for (Object o : collocations3) {
             Tuple3 t = (Tuple3) o;
             double sig = calcSig(t.termA, t.termB, t.termC);
-            likelyhoods.put(t, sig);
+            likelihoods.put(t, sig);
         }
 
-        double minSig = getMinSig(likelyhoods);
-        double maxSig = getMaxSig(likelyhoods);
+        double minSig = getMinSig(likelihoods);
+        double maxSig = getMaxSig(likelihoods);
         double diff = maxSig - minSig;
         threshold = minSig + thresholdP * diff;
         System.out.println("Threshold = " + threshold);
@@ -200,45 +221,65 @@ public class CollocationFilter {
         collocations.addAll(collocations2);
         collocations.addAll(collocations3);
 
-        for (Tuple t : likelyhoods.keySet()) {
-            if (likelyhoods.get(t) < threshold) {
+        for (Tuple t : likelihoods.keySet()) {
+            if (likelihoods.get(t) < threshold) {
                 collocations.remove(t);
             }
         }
-        
-        for(Object o : collocations){
+
+        for (Object o : collocations) {
             System.out.println(o);
         }
 
     }
 
+    /**
+     * Lädt die Datei der Stopwords, die nicht berücktsichtigt werden sollen.
+     */
     private void loadStopwords() {
+        System.out.println("Loading stopwords...");
         File file = new File("docs/stopwords.txt");
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
             String words = reader.readLine();
             String[] sw = words.split(",");
+
+            for (int i = 0; i < sw.length; i++) {
+                sw[i] = stemmer.stem(sw[i]);
+            }
+
             stopWords.addAll(Arrays.asList(sw));
         } catch (IOException ex) {
             Logger.getLogger(CollocationFilter.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    private double getMinSig(HashMap<Tuple, Double> likelyhoods) {
+    /**
+     * Gibt die Minimalsignifikanz für eine Sammlung von Kollokationen zurück.
+     * @param likelihoods die Signifikanzwerte, die berücksichtigt werden sollen
+     * @return das Minimum
+     */
+    private double getMinSig(HashMap<Tuple, Double> likelihoods) {
         double min = Double.MAX_VALUE;
-        for (Tuple t : likelyhoods.keySet()) {
-            if (likelyhoods.get(t) < min) {
-                min = likelyhoods.get(t);
+        for (Tuple t : likelihoods.keySet()) {
+            if (likelihoods.get(t) < min) {
+                min = likelihoods.get(t);
             }
         }
         return min;
     }
 
-    private double getMaxSig(HashMap<Tuple, Double> likelyhoods) {
+    /**
+     * Gibt die Maximalsignifikanz für eine Sammlung von Kollokationen zurück.
+     * 
+     * @param likelihoods die Signifikanzwerte, die berücksichtigt werden sollen
+     * @return das Maximum
+     */
+    private double getMaxSig(HashMap<Tuple, Double> likelihoods) {
         double max = Double.MIN_VALUE;
-        for (Tuple t : likelyhoods.keySet()) {
-            if (likelyhoods.get(t) > max) {
-                max = likelyhoods.get(t);
+        for (Tuple t : likelihoods.keySet()) {
+            if (likelihoods.get(t) > max) {
+                max = likelihoods.get(t);
             }
         }
         return max;
