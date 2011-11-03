@@ -22,7 +22,6 @@ public class ModuleExtractor {
         modules = new ArrayList<Module>();
         vocabulary = new Vocabulary();
         strip();
-        findCollocations();
     }
 
     /**
@@ -47,7 +46,7 @@ public class ModuleExtractor {
                 description = description.replaceAll("\n", " ");
                 description = description.replaceAll("•", "");
                 description = description.replaceAll("_", "");
-                description = description.replaceAll("[0-9]*", "");
+                description = description.replaceAll("([0-9]*)", "");
                 description = description.replaceAll("[A-Z]. ", "");
                 description = description.replaceAll("\"", "");
                 description = description.replaceAll(",", "");
@@ -61,19 +60,12 @@ public class ModuleExtractor {
                     tokens[k].trim();
                 }
                 
-                modules.add(new Module(name, description, tokens, vocabulary));
+                modules.add(new Module(name, description, tokens));
             }
         }
     }
     
-    private void findCollocations() {
-        for (Module m : modules) {
-            System.out.println("Finding collocations for class: " + m.name);
-            
-            // Finden der Kollokationen und Einfügen in das globale Vokabular aka Feature-Vektor.
-            CollocationFilter filter = new CollocationFilter(m, 0.80);
-        }
-    }
+   
     
     public List<Module> getModules() {
         return modules;

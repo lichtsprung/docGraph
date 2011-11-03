@@ -46,6 +46,6 @@ public class Tuple2 implements Tuple {
 
     @Override
     public String toString() {
-        return "Tuple2{" + "termA=" + termA + ", termB=" + termB + '}';
+        return termA + " " + termB;
     }
 }

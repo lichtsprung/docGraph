@@ -11,15 +11,13 @@ public class Module {
     protected String name;
     protected String description;
     protected HashBag terms;
-    protected Vocabulary vocabulary;
     protected String[] tokens;
     protected String[] stemmedTokens;
     private GermanStemmer stemmer;
 
-    public Module(String name, String description, String[] tokens, Vocabulary vocabulary) {
+    public Module(String name, String description, String[] tokens) {
         this.name = name;
         this.description = description;
-        this.vocabulary = vocabulary;
         this.tokens = tokens;
         terms = new HashBag();
         stemmedTokens = new String[tokens.length];
