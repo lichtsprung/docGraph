@@ -1,22 +1,14 @@
 package net.openplexus;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.collections.bag.HashBag;
 
 /**
  * Dieses Filter extrahiert aus einem Text alle Kollokationen.
- * 
+ *
  * @author Robert Giacinto
  */
 public class CollocationFilter {
@@ -40,8 +32,14 @@ public class CollocationFilter {
         terms = new HashSet<String>();
         stopWords = new HashSet<String>();
         stemmer = new GermanStemmer();
+
+        // Laden der Stopword-Datei
         loadStopwords();
+
+        // Sammeln der n-gramme
         collectTuples();
+
+        // Berechnen der log-likelihood
         calcSig();
 
     }
@@ -56,8 +54,8 @@ public class CollocationFilter {
         for (int i = 0; i < tokens.length - 1; i++) {
             if (tokens[i].length() > 1
                     && tokens[i + 1].length() > 1
-                    && !stopWords.contains(tokens[i])
-                    && !stopWords.contains(tokens[i + 1])) {
+                    && !stopWords.contains(stemmer.stem(tokens[i]))
+                    && !stopWords.contains(stemmer.stem(tokens[i + 1]))) {
                 Tuple2 t = new Tuple2(tokens[i], tokens[i + 1]);
                 collocations2.add(t);
             }
@@ -67,9 +65,9 @@ public class CollocationFilter {
             if (tokens[i].length() > 1
                     && tokens[i + 1].length() > 1
                     && tokens[i + 2].length() > 1
-                    && !stopWords.contains(tokens[i])
-                    && !stopWords.contains(tokens[i + 1])
-                    && !stopWords.contains(tokens[i + 2])) {
+                    && !stopWords.contains(stemmer.stem(tokens[i]))
+                    && !stopWords.contains(stemmer.stem(tokens[i + 1]))
+                    && !stopWords.contains(stemmer.stem(tokens[i + 2]))) {
                 Tuple3 t = new Tuple3(tokens[i], tokens[i + 1], tokens[i + 2]);
                 collocations3.add(t);
             }
@@ -77,7 +75,9 @@ public class CollocationFilter {
     }
 
     /**
-     * Berechnet Signifikanz einer Kollokation mit log-likelihood = sig(A,B) = -log(1-exp(-x)*sum(1/i!*x^i))/log n.
+     * Berechnet Signifikanz einer Kollokation mit log-likelihood = sig(A,B) =
+     * -log(1-exp(-x)*sum(1/i!*x^i))/log n.
+     *
      * @param a der Term A
      * @param b der Term B
      * @return der Signifikanzwert dieser Kollokation
@@ -129,7 +129,7 @@ public class CollocationFilter {
 
     /**
      * Berechnet die log-likelihood der Trigramms (A,B,C).
-     * 
+     *
      * @param a der Term A
      * @param b der Term B
      * @param c der Term C
@@ -184,6 +184,12 @@ public class CollocationFilter {
         return -Math.log(num) / Math.log(countN);
     }
 
+    /**
+     * Berechnet die Fakultät von n.
+     *
+     * @param n die Zahl, von der die Fakultät berechnet werden soll.
+     * @return die Fakultät
+     */
     private double factorial(int n) {
         if (n < 2) {
             return 1;
@@ -193,8 +199,8 @@ public class CollocationFilter {
     }
 
     /**
-     * Berechnet für alle Kollokationen (Bi- und Trigramme) innerhalb eines Moduls
-     * die log-likelihood der einzelnen Termkombinationen.
+     * Berechnet für alle Kollokationen (Bi- und Trigramme) innerhalb eines
+     * Moduls die log-likelihood der einzelnen Termkombinationen.
      */
     private void calcSig() {
         System.out.println("Term Count: " + terms.size());
@@ -226,11 +232,9 @@ public class CollocationFilter {
                 collocations.remove(t);
             }
         }
-
         for (Object o : collocations) {
             System.out.println(o);
         }
-
     }
 
     /**
@@ -242,7 +246,7 @@ public class CollocationFilter {
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
             String words = reader.readLine();
-            String[] sw = words.split(",");
+            String[] sw = words.toLowerCase().split(",");
 
             for (int i = 0; i < sw.length; i++) {
                 sw[i] = stemmer.stem(sw[i]);
@@ -256,6 +260,7 @@ public class CollocationFilter {
 
     /**
      * Gibt die Minimalsignifikanz für eine Sammlung von Kollokationen zurück.
+     *
      * @param likelihoods die Signifikanzwerte, die berücksichtigt werden sollen
      * @return das Minimum
      */
@@ -271,7 +276,7 @@ public class CollocationFilter {
 
     /**
      * Gibt die Maximalsignifikanz für eine Sammlung von Kollokationen zurück.
-     * 
+     *
      * @param likelihoods die Signifikanzwerte, die berücksichtigt werden sollen
      * @return das Maximum
      */

@@ -8,7 +8,7 @@ import java.util.Set;
  * Diese Klasse verwaltet das gemeinsame Vokabular aller geladener Dokumente.
  * Es gibt die Dimensionen und Features des semantischen Raums an, das durch die
  * einzelnen Begriffe aufgespannt wird.
- * 
+ *
  * @author Robert Giacinto
  */
 public class Vocabulary {
@@ -34,7 +34,7 @@ public class Vocabulary {
     public void findCollocations(Module m) {
         System.out.println("Finding collocations for class: " + m.name);
 
-        // Finden der Kollokationen und Einfügen in das globale Vokabular aka Feature-Vektor.
-        CollocationFilter filter = new CollocationFilter(m, 0.80);
+        // TODO Finden der Kollokationen und Einfügen in das globale Vokabular aka Feature-Vektor.
+        CollocationFilter filter = new CollocationFilter(m, 0.90);
     }
 }
