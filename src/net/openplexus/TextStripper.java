@@ -13,11 +13,16 @@ import org.apache.pdfbox.util.PDFTextStripper;
 
 /**
  * Diese Klasse stellt eine statische Methode zur Verfügung, die den Text aus einer PDF-Datei extrahiert.
- * 
+ *
  * @author Robert Giacinto
  */
 public class TextStripper {
 
+    /**
+     * Extrahiert einen String aus einer PDF-Datei.
+     * @param file die Datei, aus der der Text extrahiert werden soll
+     * @return der Text aus der PDF
+     */
     public static String extract(File file) {
         if (file.exists() && !file.isDirectory() && file.canRead() && file.getName().endsWith("pdf")) {
             try {

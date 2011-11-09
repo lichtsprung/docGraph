@@ -13,15 +13,52 @@ import org.apache.commons.collections.bag.HashBag;
  */
 public class CollocationFilter {
 
+    /**
+     * Der komplette Text in einzelne Tokens aufgeteilt.
+     */
     private String[] tokens;
+    /**
+     * Prozent von Kollokationen, die berücksichtigt werden sollen.
+     */
     private double thresholdP;
+    /**
+     * Der numerische Grenzwert für die Kollokationsauswahl.
+     */
     private double threshold;
-    private HashBag collocations2, collocations3, collocations;
+    /**
+     * Alle Bigramme des Texts.
+     */
+    private HashBag collocations2;
+    /**
+     * Alle Trigramme des Texts.
+     */
+    private HashBag collocations3;
+    /**
+     * Die Sammlung von Kollokationen, die im weiteren Verlauf berücksichtigt werden.
+     */
+    private HashBag collocations;
+    /**
+     * Sammlung der Kollokationen und der berechneten Signifikanzen.
+     */
     private HashMap<Tuple, Double> likelihoods;
+    /**
+     * Alle im Dokument identifizierten Terme.
+     */
     private HashSet<String> terms;
+    /**
+     * Die Liste der Stopwords.
+     */
     private HashSet<String> stopWords;
+    /**
+     * Ein Stemmer für die deutsche Sprache.
+     */
     private GermanStemmer stemmer;
 
+    /**
+     * Analysiert den Text eines Moduls und extrahiert signifikante Kollokationen.
+     * @param m das Modul
+     * @param thresholdP der Grenzwert, ab dem eine Kollokationen signifikant ist
+     */
     public CollocationFilter(Module m, double thresholdP) {
         this.tokens = m.tokens;
         this.thresholdP = thresholdP;
@@ -44,6 +81,9 @@ public class CollocationFilter {
 
     }
 
+    /**
+     * Sammelt alle Bi- und Trigramme aus dem Modultext.
+     */
     private void collectTuples() {
         for (String term : tokens) {
             if (!stopWords.contains(term)) {

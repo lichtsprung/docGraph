@@ -11,11 +11,29 @@ import java.util.List;
  */
 public class ModuleExtractor {
 
+    /**
+     * Konstante für alle Informatik-Studiengänge.
+     */
     public static final int TYPE_CS = 0;
+    /**
+     * Konstante für alle Ingenieur-Studiengänge.
+     */
     public static final int TYPE_ENG = 1;
+    /**
+     * Liste aller identifzierten Module.
+     */
     private List<Module> modules;
+    /**
+     * Der gesamte Text aus der PDF.
+     */
     private String text;
+    /**
+     * Der Typ des Modulhandbuchs.
+     */
     private int type;
+    /**
+     * Das gemeinsame Vokabular der Module.
+     */
     private Vocabulary vocabulary;
 
     public ModuleExtractor(String text, int type) {

@@ -36,5 +36,7 @@ public class Vocabulary {
 
         // TODO Finden der Kollokationen und Einfügen in das globale Vokabular aka Feature-Vektor.
         CollocationFilter filter = new CollocationFilter(m, 0.90);
+
+        // TODO Hinzufügen der restlichen Terme zum Vokabular bis auf die Terme, die durch die Kollokationen schon abgedeckt wurden.
     }
 }
