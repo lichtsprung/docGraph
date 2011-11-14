@@ -11,16 +11,17 @@ import java.io.File;
  * @author Robert Giacinto
  */
 public class TestMain {
-    
+
     public static void main(String[] args) {
-        File f = new File("docs/inf/wi_bachelor_modulhandbuch.pdf");
+        File f = new File("docs/inf/ti_bachelor_modulhandbuch.pdf");
         String text = TextStripper.extract(f);
         ModuleExtractor miExtractor = new ModuleExtractor(text, ModuleExtractor.TYPE_CS);
         Vocabulary vocab = new Vocabulary();
-        
+
         for (Module m : miExtractor.getModules()) {
-            vocab.findCollocations(m);
+            vocab.addTerms(m);
         }
-        
+
+        vocab.print();
     }
 }

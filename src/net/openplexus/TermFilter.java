@@ -7,11 +7,11 @@ import java.util.logging.Logger;
 import org.apache.commons.collections.bag.HashBag;
 
 /**
- * Dieses Filter extrahiert aus einem Text alle Kollokationen.
+ * Dieses Filter extrahiert aus einem Text alle Kollokationen und Terme.
  *
  * @author Robert Giacinto
  */
-public class CollocationFilter {
+public class TermFilter {
 
     /**
      * Der komplette Text in einzelne Tokens aufgeteilt.
@@ -34,7 +34,8 @@ public class CollocationFilter {
      */
     private HashBag collocations3;
     /**
-     * Die Sammlung von Kollokationen, die im weiteren Verlauf berücksichtigt werden.
+     * Die Sammlung von Kollokationen, die im weiteren Verlauf berücksichtigt
+     * werden.
      */
     private HashBag collocations;
     /**
@@ -42,9 +43,9 @@ public class CollocationFilter {
      */
     private HashMap<Tuple, Double> likelihoods;
     /**
-     * Alle im Dokument identifizierten Terme.
+     * Alle im Dokument identifizierten Terme und die Anzahl des Vorkommens.
      */
-    private HashSet<String> terms;
+    private HashBag terms;
     /**
      * Die Liste der Stopwords.
      */
@@ -55,23 +56,33 @@ public class CollocationFilter {
     private GermanStemmer stemmer;
 
     /**
-     * Analysiert den Text eines Moduls und extrahiert signifikante Kollokationen.
+     * Analysiert den Text eines Moduls und extrahiert signifikante
+     * Kollokationen.
+     *
      * @param m das Modul
-     * @param thresholdP der Grenzwert, ab dem eine Kollokationen signifikant ist
+     * @param thresholdP der Grenzwert, ab dem eine Kollokationen signifikant
+     * ist
      */
-    public CollocationFilter(Module m, double thresholdP) {
+    public TermFilter(Module m, double thresholdP) {
         this.tokens = m.tokens;
         this.thresholdP = thresholdP;
         collocations = new HashBag();
         collocations2 = new HashBag();
         collocations3 = new HashBag();
         likelihoods = new HashMap<Tuple, Double>();
-        terms = new HashSet<String>();
+        terms = new HashBag();
         stopWords = new HashSet<String>();
         stemmer = new GermanStemmer();
 
         // Laden der Stopword-Datei
         loadStopwords();
+
+        // Laden der einfachen Terme, bevor die Kollokationen berechnet werden
+        for (String term : tokens) {
+            if (!stopWords.contains(stemmer.stem(term))) {
+                terms.add(term);
+            }
+        }
 
         // Sammeln der n-gramme
         collectTuples();
@@ -85,11 +96,6 @@ public class CollocationFilter {
      * Sammelt alle Bi- und Trigramme aus dem Modultext.
      */
     private void collectTuples() {
-        for (String term : tokens) {
-            if (!stopWords.contains(term)) {
-                terms.add(term);
-            }
-        }
 
         for (int i = 0; i < tokens.length - 1; i++) {
             if (tokens[i].length() > 1
@@ -168,7 +174,7 @@ public class CollocationFilter {
     }
 
     /**
-     * Berechnet die log-likelihood der Trigramms (A,B,C).
+     * Berechnet die log-likelihood der Trigramme (A,B,C).
      *
      * @param a der Term A
      * @param b der Term B
@@ -243,7 +249,7 @@ public class CollocationFilter {
      * Moduls die log-likelihood der einzelnen Termkombinationen.
      */
     private void calcSig() {
-        System.out.println("Term Count: " + terms.size());
+
         System.out.println("Finding bigrams");
         for (Object o : collocations2.uniqueSet()) {
             Tuple2 t = (Tuple2) o;
@@ -258,23 +264,30 @@ public class CollocationFilter {
             likelihoods.put(t, sig);
         }
 
+        // Grenzwert bestimmen, ab dem eine Kollokation weiter berücksichtigt werden soll.
         double minSig = getMinSig(likelihoods);
         double maxSig = getMaxSig(likelihoods);
         double diff = maxSig - minSig;
         threshold = minSig + thresholdP * diff;
         System.out.println("Threshold = " + threshold);
 
+        // Zur weiteren Bearbeitung kommen alle Kollokationen in ein Bag.
         collocations.addAll(collocations2);
         collocations.addAll(collocations3);
 
+        // Werden nicht mehr gebraucht und können verworfen werden.
+        collocations2 = null;
+        collocations3 = null;
+
+        // Es werden alle Kollokationen entfernt, die unter dem Grenzwert liegen.
         for (Tuple t : likelihoods.keySet()) {
             if (likelihoods.get(t) < threshold) {
                 collocations.remove(t);
+            } else {
+                terms.add(t.toString());
             }
         }
-        for (Object o : collocations) {
-            System.out.println(o);
-        }
+        System.out.println("Term Count: " + terms.size());
     }
 
     /**
@@ -294,7 +307,7 @@ public class CollocationFilter {
 
             stopWords.addAll(Arrays.asList(sw));
         } catch (IOException ex) {
-            Logger.getLogger(CollocationFilter.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TermFilter.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -328,5 +341,23 @@ public class CollocationFilter {
             }
         }
         return max;
+    }
+
+    /**
+     * Gibt alle im Dokument gefundenen Kollokationen zurück.
+     * @return die Menge der Kollokationen (Bi- und Trigramme)
+     */
+    public Set<Tuple> getCollocations() {
+        Set<Tuple> tmp = collocations.uniqueSet();
+
+        return tmp;
+    }
+
+    /**
+     * Gibt alle Terme zurück, die innerhalb des Dokuments identifiziert werden konnten.
+     * @return die Menge der Terme
+     */
+    public HashBag getTerms() {
+        return terms;
     }
 }
