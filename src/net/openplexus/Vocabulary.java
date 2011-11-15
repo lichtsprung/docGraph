@@ -1,8 +1,7 @@
 package net.openplexus;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import org.apache.commons.collections.bag.HashBag;
 
 /**
  * Diese Klasse verwaltet das gemeinsame Vokabular aller geladener Dokumente. Es
@@ -12,14 +11,16 @@ import java.util.Set;
  * @author Robert Giacinto
  */
 public class Vocabulary {
-
+    
     private Set<String> vocabulary;
+    private List<String> sortedVocabulary;
 
     /**
      * Das gemeinsame Vokabular aller Dokumente.
      */
     public Vocabulary() {
         vocabulary = new HashSet<String>();
+        sortedVocabulary = new ArrayList<String>();
     }
 
     /**
@@ -29,6 +30,7 @@ public class Vocabulary {
      */
     public void addTerm(String term) {
         vocabulary.add(term);
+        updateSortedVocabulary();
     }
 
     /**
@@ -38,6 +40,7 @@ public class Vocabulary {
      */
     public void addTermCollection(Collection<String> collection) {
         vocabulary.addAll(collection);
+        updateSortedVocabulary();
     }
 
     /**
@@ -59,15 +62,35 @@ public class Vocabulary {
         System.out.println("Finding collocations for class: " + m.name);
 
         // TODO Finden der Kollokationen und Einfügen in das globale Vokabular aka Feature-Vektor.
-        TermFilter filter = new TermFilter(m, 0.90);
+        TermFilter filter = new TermFilter(m, 0.50);
         vocabulary.addAll(filter.getTerms());
-
-        // TODO Hinzufügen der restlichen Terme zum Vokabular bis auf die Terme, die durch die Kollokationen schon abgedeckt wurden.
+        updateSortedVocabulary();
+        
     }
-
+    
+    private void updateSortedVocabulary() {
+        sortedVocabulary.clear();
+        sortedVocabulary.addAll(vocabulary);
+        Collections.sort(sortedVocabulary);
+    }
+    
     public void print() {
-        for (String s : vocabulary) {
+        for (String s : sortedVocabulary) {
             System.out.println(s);
         }
+    }
+    
+    public List<TVComponent> expandTermVector(HashBag terms) {
+        List<TVComponent> tv = new ArrayList<TVComponent>(sortedVocabulary.size());
+        
+        for (String s : sortedVocabulary) {
+            if (terms.contains(s)) {
+                tv.add(new TVComponent(s, terms.getCount(s)));
+            } else {
+                tv.add(new TVComponent(s, 0));
+            }
+        }
+        
+        return tv;
     }
 }

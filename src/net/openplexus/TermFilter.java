@@ -54,6 +54,10 @@ public class TermFilter {
      * Ein Stemmer für die deutsche Sprache.
      */
     private GermanStemmer stemmer;
+    /**
+     * Das Modul, das untersucht wird.
+     */
+    private Module module;
 
     /**
      * Analysiert den Text eines Moduls und extrahiert signifikante
@@ -64,13 +68,14 @@ public class TermFilter {
      * ist
      */
     public TermFilter(Module m, double thresholdP) {
+        this.module = m;
         this.tokens = m.tokens;
+        this.terms = m.terms;
         this.thresholdP = thresholdP;
         collocations = new HashBag();
         collocations2 = new HashBag();
         collocations3 = new HashBag();
         likelihoods = new HashMap<Tuple, Double>();
-        terms = new HashBag();
         stopWords = new HashSet<String>();
         stemmer = new GermanStemmer();
 
@@ -80,7 +85,9 @@ public class TermFilter {
         // Laden der einfachen Terme, bevor die Kollokationen berechnet werden
         for (String term : tokens) {
             if (!stopWords.contains(stemmer.stem(term))) {
-                terms.add(term);
+                if (term.length() > 1) {
+                    terms.add(term);
+                }
             }
         }
 
@@ -159,7 +166,7 @@ public class TermFilter {
         }
         countB = tuplesB.size();
 
-        // Ausrechnen der Hilfsvariablen aus bestimmen der log-likelihood des Bigramms (A,B).
+        // Ausrechnen der Hilfsvariablen zum bestimmen der log-likelihood des Bigramms (A,B).
 
         double x = (countA * countB) / countN;
         double sum = 0;
@@ -284,10 +291,16 @@ public class TermFilter {
             if (likelihoods.get(t) < threshold) {
                 collocations.remove(t);
             } else {
-                terms.add(t.toString());
+                String s = t.toString();
+                terms.add(s);
             }
         }
-        System.out.println("Term Count: " + terms.size());
+
+        // Termvektor eines Moduls wird gesetzt für alle Terme != 0.
+        for (Object o : terms.uniqueSet()) {
+            module.termVector.put((String) o, terms.getCount(o));
+        }
+        
     }
 
     /**
@@ -345,6 +358,7 @@ public class TermFilter {
 
     /**
      * Gibt alle im Dokument gefundenen Kollokationen zurück.
+     *
      * @return die Menge der Kollokationen (Bi- und Trigramme)
      */
     public Set<Tuple> getCollocations() {
@@ -354,7 +368,9 @@ public class TermFilter {
     }
 
     /**
-     * Gibt alle Terme zurück, die innerhalb des Dokuments identifiziert werden konnten.
+     * Gibt alle Terme zurück, die innerhalb des Dokuments identifiziert werden
+     * konnten.
+     *
      * @return die Menge der Terme
      */
     public HashBag getTerms() {
