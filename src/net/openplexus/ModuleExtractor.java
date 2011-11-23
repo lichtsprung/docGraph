@@ -1,7 +1,6 @@
 package net.openplexus;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -61,27 +60,29 @@ public class ModuleExtractor {
 
             for (int i = 1; i < tmp.length; i++) {
                 String name = tmp[i].substring(0, tmp[i].indexOf(separator));
+                System.out.println("Extracting content from class: " + name);
                 String description = tmp[i].substring(tmp[i].indexOf(separator), tmp[i].length());
 
-
-                description = description.substring(description.indexOf("Lernziele/Kompetenzen"), description.indexOf("Studien-/Prüfungsleistungen"));
-                description = description.replaceAll("Lernziele/Kompetenzen:", "");
-                description = description.replaceAll("Inhalt:", "");
-                description = description.replaceAll("•", "");
-                description = description.replaceAll("-\n", "");
-                description = description.replaceAll("\n", " ");
-                description = description.replaceAll("[0-9].", "");
-                description = description.replaceAll("_", "");
-                description = description.replaceAll(" o ", "");
-                description = description.replaceAll(";", "");
-                description = description.replaceAll(":", "");
-                description = description.replaceAll("\\(", "");
-                description = description.replaceAll("\\)", "");
-                description = description.replaceAll("\\.\\.", "");
-//                description = description.replaceAll("[a-z]\\.", "");
-                description = description.replaceAll("&", " ");
-                description = description.replaceAll(",", " ");
-                description = description.replaceAll("ii.", " ");
+                int start = description.indexOf("Lernziele");
+                int end = (description.indexOf("Studien-/") < 0) ? description.length() : description.indexOf("Studien-/");
+                description = description.substring(start, end);
+//                description = description.replaceAll("Lernziele/Kompetenzen:", "");
+//                description = description.replaceAll("Inhalt:", "");
+//                description = description.replaceAll("•", "");
+//                description = description.replaceAll("-\n", "");
+//                description = description.replaceAll("\n", " ");
+//                description = description.replaceAll("[0-9].", "");
+//                description = description.replaceAll("_", "");
+//                description = description.replaceAll(" o ", "");
+//                description = description.replaceAll(";", "");
+//                description = description.replaceAll(":", "");
+//                description = description.replaceAll("\\(", "");
+//                description = description.replaceAll("\\)", "");
+//                description = description.replaceAll("\\.\\.", "");
+////                description = description.replaceAll("[a-z]\\.", "");
+//                description = description.replaceAll("&", " ");
+//                description = description.replaceAll(",", " ");
+//                description = description.replaceAll("ii.", " ");
 
 
                 name = name.replaceAll(":", "");

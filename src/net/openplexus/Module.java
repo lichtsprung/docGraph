@@ -43,8 +43,15 @@ public class Module {
         termVector = new HashMap<String, Integer>();
     }
     
+    /**
+     * Gibt den globalen Featurevektor zurück, der für die Ähnlichkeitsbestimmung benötigt wird.
+     * 
+     * @param vocabulary das Gesamtvokabular aller Dokumente
+     * @return den Featurevektor
+     */
     public HashMap<String, Integer> getTermVector(Vocabulary vocabulary){
         HashMap<String, Integer> t = new HashMap<String, Integer>();
+        // TODO Es wird das Gesamtvokabular genommen und ein Termvektor zurückgegeben, der für alle Terme in diesem Modul einen Wert > 0 setzt.
         return t;
     }
 }

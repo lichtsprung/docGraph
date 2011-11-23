@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package net.openplexus;
 
 import java.io.File;
@@ -16,24 +12,36 @@ public class TestMain {
     
     public static void main(String[] args) {
         File f = new File("docs/inf/ti_bachelor_modulhandbuch.pdf");
+//        System.out.println("File: " + f.getName() + " loaded");
+//        System.out.println("Extracting text...");
+//        String text = TextStripper.extract(f);
+//        System.out.println("Analysing text...");
+//        ModuleExtractor tiExtractor = new ModuleExtractor(text, ModuleExtractor.TYPE_CS);
+//        
+//        f = new File("docs/inf/wi_bachelor_modulhandbuch.pdf");
+//        System.out.println("File: " + f.getName() + " loaded");
+//        System.out.println("Extracting text...");
+//        text = TextStripper.extract(f);
+//        System.out.println("Analysing text...");
+//        ModuleExtractor wiExtractor = new ModuleExtractor(text, ModuleExtractor.TYPE_CS);
+//        
+        f = new File("docs/inf/ai_bachelor_modulhandbuch.pdf");
+        System.out.println("File: " + f.getName() + " loaded");
+        System.out.println("Extracting text...");
         String text = TextStripper.extract(f);
-        ModuleExtractor miExtractor = new ModuleExtractor(text, ModuleExtractor.TYPE_CS);
+        System.out.println("Analysing text...");
+        ModuleExtractor aiExtractor = new ModuleExtractor(text, ModuleExtractor.TYPE_CS);
         
-        f = new File("docs/inf/wi_bachelor_modulhandbuch.pdf");
-        text = TextStripper.extract(f);
-        ModuleExtractor wiExtractor = new ModuleExtractor(text, ModuleExtractor.TYPE_CS);
-        
-        
+        System.out.println("Building feature vector...");
         Vocabulary vocab = new Vocabulary();
         List<Module> modules = new ArrayList<Module>();
-        modules.addAll(miExtractor.getModules());
-        modules.addAll(wiExtractor.getModules());
+//        modules.addAll(tiExtractor.getModules());
+//        modules.addAll(wiExtractor.getModules());
+        modules.addAll(aiExtractor.getModules());
         
         for (Module m : modules) {
             vocab.addTerms(m);
         }
         
-        
-        vocab.print();
     }
 }
