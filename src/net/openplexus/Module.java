@@ -1,6 +1,8 @@
 package net.openplexus;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import org.apache.commons.collections.bag.HashBag;
 
 /**
@@ -26,7 +28,8 @@ public class Module {
      * Der gesamte Text in einzelnen Tokens.
      */
     protected String[] tokens;
-    protected HashMap<String, Integer> termVector;
+    protected List<TVComponent> featureVector;
+    protected HashMap<Module, Double> similarities;
 
     /**
      * Erzeugt ein neues Modul.
@@ -40,18 +43,48 @@ public class Module {
         this.description = description;
         this.tokens = tokens;
         terms = new HashBag();
-        termVector = new HashMap<String, Integer>();
+        featureVector = new ArrayList<TVComponent>(tokens.length);
+        similarities = new HashMap<Module, Double>(50);
     }
-    
-    /**
-     * Gibt den globalen Featurevektor zurück, der für die Ähnlichkeitsbestimmung benötigt wird.
-     * 
-     * @param vocabulary das Gesamtvokabular aller Dokumente
-     * @return den Featurevektor
-     */
-    public HashMap<String, Integer> getTermVector(Vocabulary vocabulary){
-        HashMap<String, Integer> t = new HashMap<String, Integer>();
-        // TODO Es wird das Gesamtvokabular genommen und ein Termvektor zurückgegeben, der für alle Terme in diesem Modul einen Wert > 0 setzt.
-        return t;
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Module other = (Module) obj;
+        if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 37 * hash + (this.name != null ? this.name.hashCode() : 0);
+        hash = 37 * hash + (this.description != null ? this.description.hashCode() : 0);
+        return hash;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public HashMap<Module, Double> getSimilarities() {
+        return similarities;
+    }
+
+    public HashMap<Module, Double> getSimilarities(double min, double max) {
+        HashMap<Module, Double> sim = new HashMap<Module, Double>(similarities.size());
+        for (Module m : similarities.keySet()) {
+            if (similarities.get(m) > min && similarities.get(m) < max) {
+                sim.put(m, similarities.get(m));
+            }
+        }
+        return sim;
     }
 }

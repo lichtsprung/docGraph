@@ -75,8 +75,8 @@ public class TermFilter {
         collocations = new HashBag();
         collocations2 = new HashBag();
         collocations3 = new HashBag();
-        likelihoods = new HashMap<Tuple, Double>();
-        stopWords = new HashSet<String>();
+        likelihoods = new HashMap<Tuple, Double>(tokens.length * 2);
+        stopWords = new HashSet<String>(tokens.length);
         stemmer = new GermanStemmer();
 
         // Laden der Stopword-Datei
@@ -276,7 +276,6 @@ public class TermFilter {
         double maxSig = getMaxSig(likelihoods);
         double diff = maxSig - minSig;
         threshold = minSig + thresholdP * diff;
-        System.out.println("Threshold = " + threshold);
 
         // Zur weiteren Bearbeitung kommen alle Kollokationen in ein Bag.
         collocations.addAll(collocations2);
@@ -296,11 +295,8 @@ public class TermFilter {
             }
         }
 
-        // Termvektor eines Moduls wird gesetzt für alle Terme != 0.
-        for (Object o : terms.uniqueSet()) {
-            module.termVector.put((String) o, terms.getCount(o));
-        }
-        
+        module.terms = terms;
+
     }
 
     /**

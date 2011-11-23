@@ -14,67 +14,74 @@
  */
 package net.openplexus.vis;
 
+import com.mxgraph.layout.mxFastOrganicLayout;
 import com.mxgraph.layout.mxOrganicLayout;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.view.mxGraph;
 import java.awt.HeadlessException;
+import java.util.HashMap;
 import javax.swing.JFrame;
+import net.openplexus.Module;
+import net.openplexus.TestMain;
 
 /**
  * Die Visualisierung der Analyse der Modulhandbücher.
- * 
+ *
  * @author Robert Giacinto
  */
 public class GraphMain extends JFrame {
-
+    
     private mxGraph graph;
-
+    private TestMain test;
+    private HashMap<String, Object> vertices;
+    
     public GraphMain() throws HeadlessException {
         super("Modulhandbuch Visualisierung");
-
+        test = new TestMain();
+        vertices = new HashMap<String, Object>(test.getModules().size());
+        
         graph = new mxGraph();
         Object parent = graph.getDefaultParent();
-
+        
         graph.getModel().beginUpdate();
         // TODO Erzeugen aller Vertizes (die Terme aus dem Modulhandbuch)
         // TODO Verbinden der Module mit den Termen
         try {
-            Object v1 = graph.insertVertex(parent, null, "Medieninformatik", 0, 0, 20, 20);
-            Object v2 = graph.insertVertex(parent, null, "Algortithmen", 0, 0, 20, 20);
-            Object v3 = graph.insertVertex(parent, null, "Wissenschaft", 0, 0, 20, 20);
-            Object v4 = graph.insertVertex(parent, null, "Computergrafik", 0, 0, 20, 20);
-            Object v5 = graph.insertVertex(parent, null, "Raytracing", 0, 0, 20, 20);
-            Object v6 = graph.insertVertex(parent, null, "Filme", 0, 0, 20, 20);
-            Object v7 = graph.insertVertex(parent, null, "Flash", 0, 0, 20, 20);
-            Object v8 = graph.insertVertex(parent, null, "Usability", 0, 0, 20, 20);
-            graph.insertEdge(parent, null, null, v2, v1);
-            graph.insertEdge(parent, null, null, v3, v1);
-            graph.insertEdge(parent, null, null, v4, v1);
-            graph.insertEdge(parent, null, null, v5, v3);
-            graph.insertEdge(parent, null, null, v6, v2);
-            graph.insertEdge(parent, null, null, v7, v2);
-            graph.insertEdge(parent, null, null, v8, v2);
-
+            
+            for (Module m : test.getModules()) {
+                vertices.put(m.getName(), graph.insertVertex(parent, null, m.getName(), 0, 0, 250, 20));
+            }
+            
+            for (Module m : test.getModules()) {
+                System.out.println("Connecting " + m.getName());
+                HashMap<Module, Double> similarities = m.getSimilarities(0.05, 0.96);
+                for (Module m2 : similarities.keySet()) {
+                    graph.insertEdge(parent, null, similarities.get(m2), vertices.get(m.getName()), vertices.get(m2.getName()));
+                }
+            }
+            
         } finally {
             graph.getModel().endUpdate();
         }
-
-
+        
+        
         graph.getModel().beginUpdate();
         try {
             mxOrganicLayout cl = new mxOrganicLayout(graph);
+            cl.setOptimizeEdgeDistance(true);
+            cl.setAverageNodeArea(300000);
+            cl.setOptimizeNodeDistribution(true);
             cl.setFineTuning(true);
-            cl.setFineTuningRadius(15);
-            cl.setEdgeLengthCostFactor(0.3);
             cl.execute(parent);
+            
         } finally {
             graph.getModel().endUpdate();
         }
         mxGraphComponent component = new mxGraphComponent(graph);
-
+        
         getContentPane().add(component);
     }
-
+    
     public static void main(String[] args) {
         GraphMain gm = new GraphMain();
         gm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

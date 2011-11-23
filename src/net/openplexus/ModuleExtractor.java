@@ -1,6 +1,7 @@
 package net.openplexus;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -35,12 +36,23 @@ public class ModuleExtractor {
      * Das gemeinsame Vokabular der Module.
      */
     private Vocabulary vocabulary;
+    private String nameExtension;
 
-    public ModuleExtractor(String text, int type) {
+    /**
+     * Extrahiert die einzelnen Module und Kurse aus einem Modulhandbuch.
+     *
+     * @param text der Text des Modulhandbuchs
+     * @param type der Typ des Modulhandbuchs, da sich der Aufbau zwischen
+     * Informatik und Ingenieurwissenschaften unterscheiden
+     * @param nameExtension die Erweiterung des Modulnamens, der die Herkunft
+     * kennzeichnen soll
+     */
+    public ModuleExtractor(String text, int type, String nameExtension) {
         this.text = text;
         this.type = type;
-        modules = new ArrayList<Module>();
+        modules = new ArrayList<Module>(50);
         vocabulary = new Vocabulary();
+        this.nameExtension = nameExtension;
         strip();
     }
 
@@ -59,30 +71,30 @@ public class ModuleExtractor {
             }
 
             for (int i = 1; i < tmp.length; i++) {
-                String name = tmp[i].substring(0, tmp[i].indexOf(separator));
+                String name = tmp[i].substring(0, tmp[i].indexOf(separator)) + " (" + nameExtension + ")";
                 System.out.println("Extracting content from class: " + name);
                 String description = tmp[i].substring(tmp[i].indexOf(separator), tmp[i].length());
 
                 int start = description.indexOf("Lernziele");
                 int end = (description.indexOf("Studien-/") < 0) ? description.length() : description.indexOf("Studien-/");
                 description = description.substring(start, end);
-//                description = description.replaceAll("Lernziele/Kompetenzen:", "");
-//                description = description.replaceAll("Inhalt:", "");
-//                description = description.replaceAll("•", "");
-//                description = description.replaceAll("-\n", "");
-//                description = description.replaceAll("\n", " ");
-//                description = description.replaceAll("[0-9].", "");
-//                description = description.replaceAll("_", "");
-//                description = description.replaceAll(" o ", "");
-//                description = description.replaceAll(";", "");
-//                description = description.replaceAll(":", "");
-//                description = description.replaceAll("\\(", "");
-//                description = description.replaceAll("\\)", "");
-//                description = description.replaceAll("\\.\\.", "");
-////                description = description.replaceAll("[a-z]\\.", "");
-//                description = description.replaceAll("&", " ");
-//                description = description.replaceAll(",", " ");
-//                description = description.replaceAll("ii.", " ");
+                description = description.replaceAll("Lernziele/Kompetenzen:", "");
+                description = description.replaceAll("Inhalt:", "");
+                description = description.replaceAll("•", "");
+                description = description.replaceAll("-\n", "");
+                description = description.replaceAll("\n", " ");
+                description = description.replaceAll("[0-9].", "");
+                description = description.replaceAll("_", "");
+                description = description.replaceAll(" o ", "");
+                description = description.replaceAll(";", "");
+                description = description.replaceAll(":", "");
+                description = description.replaceAll("\\(", "");
+                description = description.replaceAll("\\)", "");
+                description = description.replaceAll("\\.\\.", "");
+                description = description.replaceAll("[a-z]\\.", "");
+                description = description.replaceAll("&", " ");
+                description = description.replaceAll(",", " ");
+                description = description.replaceAll("ii.", " ");
 
 
                 name = name.replaceAll(":", "");
@@ -98,6 +110,6 @@ public class ModuleExtractor {
     }
 
     public List<Module> getModules() {
-        return modules;
+        return Collections.unmodifiableList(modules);
     }
 }
