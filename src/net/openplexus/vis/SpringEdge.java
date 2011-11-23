@@ -50,7 +50,7 @@ public class SpringEdge extends Edge {
         float dy = dY();
         Vector3D f = getForceFrom();
 
-        parent.stroke(255, 255, 255, 64);
+        parent.stroke(255, 255, 255, 25);
         parent.strokeWeight(100 / a);
         parent.line(from.getX(), from.getY(), 0, to.getX(), to.getY(), 0);
         //text(s, from.getX() + dx/2 - textWidth(s)/2, from.getY() + dy/2);

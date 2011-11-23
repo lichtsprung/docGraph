@@ -13,8 +13,8 @@ import processing.core.PApplet;
 public class GraphForce extends PApplet {
 
     private static final Logger LOG = Logger.getLogger(GraphForce.class.getName());
-    int W = 500;
-    int H = 500;
+    int W = 1600;
+    int H = 1000;
     Graph g = buildSimilarityGraph();
     TestMain test;
     float scaleFactor = 1;
@@ -24,19 +24,22 @@ public class GraphForce extends PApplet {
     @Override
     public void setup() {
         size(W, H, P3D);
+
+        textFont(createFont("FreeSans", 62));
         smooth();
 
     }
 
     @Override
     public void draw() {
-        camera(0f, 0f, 1220.0f, // eyeX, eyeY, eyeZ
-                0f, 0f, 0f, // centerX, centerY, centerZ
+        camera(0f, 0.0f, 2920.0f, // eyeX, eyeY, eyeZ
+                offsetH, offsetV, 0f, // centerX, centerY, centerZ
                 0.0f, 1.0f, 0.0f); // upX, upY, upZ
 //        float fov = PI / 2.0f;
 //        float cameraZ = (height / 2.0f) / tan(PI * fov / 360.0f);
 //        perspective(fov, width / height,
 //                cameraZ / 2.0f, cameraZ * 2.0f);
+
 
 
         background(0);
@@ -161,7 +164,7 @@ public class GraphForce extends PApplet {
         graph = new Graph();
 
         for (int i = 0; i < nNodes; i++) {
-            ForcedNode n = new ForcedNode(new Vector3D(W / 4 + random(W / 2), H / 4 + random(H / 2), 0), this);
+            ForcedNode n = new ForcedNode(new Vector3D(-W / 4 + random(W / 2), -H / 4 + random(H / 2), 0), this);
             n.setLabel(i + "");
             n.setMass(1.0f + random(3));
             graph.addNode(n.label, n);
@@ -186,7 +189,7 @@ public class GraphForce extends PApplet {
 
         // Knoten
         for (int i = 0; i < test.getModules().size(); i++) {
-            ForcedNode n = new ForcedNode(new Vector3D(W / 8 + random(W / 4), H / 8 + random(H / 4), 0), this);
+            ForcedNode n = new ForcedNode(new Vector3D(-W / 2 + random(W), -H / 2 + random(H), 0), this);
             n.setLabel(test.getModules().get(i).getName());
             n.setMass(5f);
             g.addNode(n.label, n);
@@ -199,7 +202,7 @@ public class GraphForce extends PApplet {
                     Node a = g.getNode(m1.getName());
                     Node b = g.getNode(m2.getName());
                     SpringEdge e = new SpringEdge(a, b, this);
-                    e.setNaturalLength(100 - 100 * (float) sim);
+                    e.setNaturalLength(100 - 70 * (float) sim);
                     g.addEdge(e);
                 }
             }
@@ -211,6 +214,6 @@ public class GraphForce extends PApplet {
     }
 
     public static void main(String args[]) {
-        PApplet.main(new String[]{"net.openplexus.vis.GraphForce"});
+        PApplet.main(new String[]{"--present", "net.openplexus.vis.GraphForce"});
     }
 }
