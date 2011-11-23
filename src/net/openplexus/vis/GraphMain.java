@@ -19,7 +19,10 @@ import com.mxgraph.layout.mxOrganicLayout;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.view.mxGraph;
 import java.awt.HeadlessException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
 import javax.swing.JFrame;
 import net.openplexus.Module;
 import net.openplexus.TestMain;
@@ -34,29 +37,29 @@ public class GraphMain extends JFrame {
     private mxGraph graph;
     private TestMain test;
     private HashMap<String, Object> vertices;
+    private List edges;
     
     public GraphMain() throws HeadlessException {
         super("Modulhandbuch Visualisierung");
         test = new TestMain();
         vertices = new HashMap<String, Object>(test.getModules().size());
+        edges = new ArrayList(500);
         
         graph = new mxGraph();
         Object parent = graph.getDefaultParent();
-        
+        Random random = new Random(System.nanoTime());
         graph.getModel().beginUpdate();
-        // TODO Erzeugen aller Vertizes (die Terme aus dem Modulhandbuch)
-        // TODO Verbinden der Module mit den Termen
         try {
             
             for (Module m : test.getModules()) {
-                vertices.put(m.getName(), graph.insertVertex(parent, null, m.getName(), 0, 0, 250, 20));
+                vertices.put(m.getName(), graph.insertVertex(parent, null, m.getName(), 100, 100, 350, 30));
             }
             
             for (Module m : test.getModules()) {
                 System.out.println("Connecting " + m.getName());
-                HashMap<Module, Double> similarities = m.getSimilarities(0.05, 0.96);
+                HashMap<Module, Double> similarities = m.getSimilarities();
                 for (Module m2 : similarities.keySet()) {
-                    graph.insertEdge(parent, null, similarities.get(m2), vertices.get(m.getName()), vertices.get(m2.getName()));
+                    edges.add(graph.insertEdge(parent, null, similarities.get(m2), vertices.get(m.getName()), vertices.get(m2.getName())));
                 }
             }
             
@@ -67,16 +70,34 @@ public class GraphMain extends JFrame {
         
         graph.getModel().beginUpdate();
         try {
-            mxOrganicLayout cl = new mxOrganicLayout(graph);
-            cl.setOptimizeEdgeDistance(true);
-            cl.setAverageNodeArea(300000);
-            cl.setOptimizeNodeDistribution(true);
-            cl.setFineTuning(true);
+//            mxOrganicLayout cl = new mxOrganicLayout(graph);
+////            cl.setOptimizeEdgeLength(true);
+////            cl.setOptimizeEdgeCrossing(true);
+////            cl.setOptimizeEdgeLength(true);
+////            cl.setOptimizeNodeDistribution(true);
+//            cl.setInitialMoveRadius(500);
+////            cl.setMinMoveRadius(50);
+//            cl.setFineTuning(true);
+            mxFastOrganicLayout cl = new mxFastOrganicLayout(graph);
+            cl.setMaxIterations(100000);
+            cl.setForceConstant(50);
+            cl.setInitialTemp(1000);
+            cl.setUseInputOrigin(false);
             cl.execute(parent);
-            
         } finally {
             graph.getModel().endUpdate();
         }
+        
+        graph.getModel().beginUpdate();
+        try {
+            for (Object o : edges) {
+                graph.getModel().remove(o);
+            }
+        } finally {
+            graph.getModel().endUpdate();
+        }
+        
+        
         mxGraphComponent component = new mxGraphComponent(graph);
         
         getContentPane().add(component);

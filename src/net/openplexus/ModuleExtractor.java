@@ -72,7 +72,7 @@ public class ModuleExtractor {
 
             for (int i = 1; i < tmp.length; i++) {
                 String name = tmp[i].substring(0, tmp[i].indexOf(separator)) + " (" + nameExtension + ")";
-                System.out.println("Extracting content from class: " + name);
+//                System.out.println("Extracting content from class: " + name);
                 String description = tmp[i].substring(tmp[i].indexOf(separator), tmp[i].length());
 
                 int start = description.indexOf("Lernziele");

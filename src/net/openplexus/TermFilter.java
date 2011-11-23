@@ -257,14 +257,14 @@ public class TermFilter {
      */
     private void calcSig() {
 
-        System.out.println("Finding bigrams");
+//        System.out.println("Finding bigrams");
         for (Object o : collocations2.uniqueSet()) {
             Tuple2 t = (Tuple2) o;
             double sig = calcSig(t.termA, t.termB);
             likelihoods.put(t, sig);
         }
 
-        System.out.println("Finding trigrams");
+//        System.out.println("Finding trigrams");
         for (Object o : collocations3) {
             Tuple3 t = (Tuple3) o;
             double sig = calcSig(t.termA, t.termB, t.termC);
@@ -303,7 +303,7 @@ public class TermFilter {
      * Lädt die Datei der Stopwords, die nicht berücktsichtigt werden sollen.
      */
     private void loadStopwords() {
-        System.out.println("Loading stopwords...");
+//        System.out.println("Loading stopwords...");
         File file = new File("docs/stopwords.txt");
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));

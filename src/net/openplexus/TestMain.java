@@ -51,12 +51,12 @@ public class TestMain {
 //        modules.addAll(miExtractor.getModules());
 
         for (Module m : modules) {
-            System.out.println("Adding terms of class: " + m.name);
+//            System.out.println("Adding terms of class: " + m.name);
             vocab.addTerms(m);
         }
 
         for (Module m : modules) {
-            System.out.println("Setting feature vector for class: " + m.name);
+//            System.out.println("Setting feature vector for class: " + m.name);
             m.featureVector = vocab.getFeatureVector(m);
         }
 
@@ -66,7 +66,7 @@ public class TestMain {
             for (Module m2 : modules) {
                 m1.similarities.put(m2, CosineSimilarity.calculate(m1, m2));
                 if (m1.similarities.get(m2) > 0.15 && m1.similarities.get(m2) < 0.9) {
-                    System.out.println("Similarity between " + m1.name + " and " + m2.name + ": " + m1.similarities.get(m2));
+//                    System.out.println("Similarity between " + m1.name + " and " + m2.name + ": " + m1.similarities.get(m2));
                 }
             }
         }

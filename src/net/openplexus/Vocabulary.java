@@ -58,7 +58,7 @@ public class Vocabulary {
      * @param m das zu untersuchende Dokument
      */
     public void addTerms(Module m) {
-        System.out.println("Finding collocations for class: " + m.name);
+//        System.out.println("Finding collocations for class: " + m.name);
 
         TermFilter filter = new TermFilter(m, 0.50);
         vocabulary.addAll(filter.getTerms());
