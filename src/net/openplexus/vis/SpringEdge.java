@@ -7,7 +7,7 @@ import processing.core.PApplet;
 //banksean at yahoo
 public class SpringEdge extends Edge {
 
-    float k = 0.001f; //stiffness
+    float k = 0.005f; //stiffness
     float a = 100; //natural length.  ehmm uh, huh huh stiffness. natural length ;-)
 
     //This edge sublcass apples a spring force between the two nodes it connects
@@ -46,13 +46,13 @@ public class SpringEdge extends Edge {
 
     @Override
     public void draw() {
-        float dx = dX();
-        float dy = dY();
-        Vector3D f = getForceFrom();
-
-        parent.stroke(255, 255, 255, 25);
-        parent.strokeWeight(100 / a);
-        parent.line(from.getX(), from.getY(), 0, to.getX(), to.getY(), 0);
+//        float dx = dX();
+//        float dy = dY();
+//        Vector3D f = getForceFrom();
+//
+//        parent.stroke(255, 255, 255, 25);
+//        parent.strokeWeight(100 / a);
+//        parent.line(from.getX(), from.getY(), 0, to.getX(), to.getY(), 0);
         //text(s, from.getX() + dx/2 - textWidth(s)/2, from.getY() + dy/2);
         //smooth();
     }

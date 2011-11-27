@@ -35,23 +35,23 @@ public class TestMain {
         System.out.println("Analysing text...");
         ModuleExtractor aiExtractor = new ModuleExtractor(text, ModuleExtractor.TYPE_CS, "AI");
 //        
-//        f = new File("docs/inf/mi_bachelor_modulhandbuch.pdf");
-//        System.out.println("File: " + f.getName() + " loaded");
-//        System.out.println("Extracting text...");
-//        text = TextStripper.extract(f);
-//        System.out.println("Analysing text...");
-//        ModuleExtractor miExtractor = new ModuleExtractor(text, ModuleExtractor.TYPE_CS, "MI");
-//        
+        f = new File("docs/inf/mi_bachelor_modulhandbuch.pdf");
+        System.out.println("File: " + f.getName() + " loaded");
+        System.out.println("Extracting text...");
+        text = TextStripper.extract(f);
+        System.out.println("Analysing text...");
+        ModuleExtractor miExtractor = new ModuleExtractor(text, ModuleExtractor.TYPE_CS, "MI");
+
         System.out.println("Building feature vector...");
         Vocabulary vocab = new Vocabulary();
         modules = new ArrayList<Module>(50);
         modules.addAll(tiExtractor.getModules());
         modules.addAll(wiExtractor.getModules());
         modules.addAll(aiExtractor.getModules());
-//        modules.addAll(miExtractor.getModules());
+        modules.addAll(miExtractor.getModules());
 
         for (Module m : modules) {
-//            System.out.println("Adding terms of class: " + m.name);
+            System.out.println("Adding terms of class: " + m.name);
             vocab.addTerms(m);
         }
 
@@ -66,7 +66,7 @@ public class TestMain {
             for (Module m2 : modules) {
                 m1.similarities.put(m2, CosineSimilarity.calculate(m1, m2));
                 if (m1.similarities.get(m2) > 0.15 && m1.similarities.get(m2) < 0.9) {
-//                    System.out.println("Similarity between " + m1.name + " and " + m2.name + ": " + m1.similarities.get(m2));
+                    System.out.println("Similarity between " + m1.name + " and " + m2.name + ": " + m1.similarities.get(m2));
                 }
             }
         }
@@ -77,5 +77,6 @@ public class TestMain {
     }
 
     public static void main(String[] args) {
+        new TestMain();
     }
 }

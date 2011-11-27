@@ -13,8 +13,8 @@ import processing.core.PApplet;
 public class GraphForce extends PApplet {
 
     private static final Logger LOG = Logger.getLogger(GraphForce.class.getName());
-    int W = 1600;
-    int H = 1000;
+    int W = 1400;
+    int H = 800;
     Graph g = buildSimilarityGraph();
     TestMain test;
     float scaleFactor = 1;
@@ -26,14 +26,14 @@ public class GraphForce extends PApplet {
         size(W, H, P3D);
 
         textFont(createFont("FreeSans", 62));
-        smooth();
+//        smooth();
 
     }
 
     @Override
     public void draw() {
-        camera(0f, 0.0f, 2920.0f, // eyeX, eyeY, eyeZ
-                offsetH, offsetV, 0f, // centerX, centerY, centerZ
+        camera(offsetH, 0.0f, 2920.0f - offsetV, // eyeX, eyeY, eyeZ
+                0f, 0f, 0f, // centerX, centerY, centerZ
                 0.0f, 1.0f, 0.0f); // upX, upY, upZ
 //        float fov = PI / 2.0f;
 //        float cameraZ = (height / 2.0f) / tan(PI * fov / 360.0f);
@@ -107,15 +107,15 @@ public class GraphForce extends PApplet {
     @Override
     public void keyPressed() {
         if (key == ' ') {
-            g = buildRandomGraph();
+            addNoise(g);
         } else if (key == 'w') {
-            offsetV += 1;
+            offsetV += 10;
         } else if (key == 'a') {
-            offsetH -= 1;
+            offsetH -= 10;
         } else if (key == 's') {
-            offsetV -= 1;
+            offsetV -= 10;
         } else if (key == 'd') {
-            offsetH += 1;
+            offsetH += 10;
         }
     }
 
@@ -157,7 +157,7 @@ public class GraphForce extends PApplet {
         }
     }
 
-    Graph buildRandomGraph() {
+    private Graph buildRandomGraph() {
         Graph graph;
         int nNodes = 15;
         int nEdges = 40;
@@ -183,15 +183,15 @@ public class GraphForce extends PApplet {
         return graph;
     }
 
-    Graph buildSimilarityGraph() {
+    private Graph buildSimilarityGraph() {
         test = new TestMain();
         Graph g = new Graph();
 
         // Knoten
         for (int i = 0; i < test.getModules().size(); i++) {
-            ForcedNode n = new ForcedNode(new Vector3D(-W / 2 + random(W), -H / 2 + random(H), 0), this);
+            ForcedNode n = new ForcedNode(new Vector3D(-2 * W + random(4 * W), -H * 2 + random(4 * H), 0), this);
             n.setLabel(test.getModules().get(i).getName());
-            n.setMass(5f);
+            n.setMass(8f);
             g.addNode(n.label, n);
         }
 
@@ -201,19 +201,33 @@ public class GraphForce extends PApplet {
                     double sim = m1.getSimilarities().get(m2);
                     Node a = g.getNode(m1.getName());
                     Node b = g.getNode(m2.getName());
-                    SpringEdge e = new SpringEdge(a, b, this);
-                    e.setNaturalLength(100 - 70 * (float) sim);
-                    g.addEdge(e);
+                    if (a != b) {
+                        SpringEdge e = new SpringEdge(a, b, this);
+                        e.setNaturalLength(1000 - (float) (1000 * sim));
+                        g.addEdge(e);
+                    }
                 }
             }
         }
-
-
-
         return g;
     }
 
     public static void main(String args[]) {
-        PApplet.main(new String[]{"--present", "net.openplexus.vis.GraphForce"});
+        PApplet.main(new String[]{"net.openplexus.vis.GraphForce"});
+    }
+
+    private void addNoise(Graph g) {
+        for (Node n : g.getNodes()) {
+            ForcedNode fn = (ForcedNode) n;
+            float mass = fn.getMass();
+            mass += random(-0.1f, 0.1f);
+            fn.setMass(mass);
+            for (Edge e : g.getEdgesFrom(n)) {
+                SpringEdge se = (SpringEdge) e;
+                se.k += random(-0.001f, 0.001f);
+            }
+        }
+
+
     }
 }

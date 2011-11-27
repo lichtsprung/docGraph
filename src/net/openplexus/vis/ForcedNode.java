@@ -20,8 +20,8 @@ public class ForcedNode extends Node {
 
     public void setMass(float m) {
         mass = m;
-        h = m;
-        w = m;
+        h = m * 20;
+        w = m * 20;
     }
 
     public void setForce(Vector3D v) {
@@ -49,8 +49,17 @@ public class ForcedNode extends Node {
             parent.noStroke();
             parent.fill(255, 255, 255, 64);
         }
-
+        if (label.contains("(TI)")) {
+            parent.fill(255, 0, 0, 128);
+        } else if (label.contains("(AI)")) {
+            parent.fill(0, 255, 0, 128);
+        } else if (label.contains("(WI)")) {
+            parent.fill(0, 0, 255, 128);
+        }else if (label.contains("(MI)")) {
+            parent.fill(255, 0, 255, 128);
+        }
         parent.ellipse(getX(), getY(), h, w);
+
         parent.fill(255);
         parent.text(label, getX(), getY());
     }

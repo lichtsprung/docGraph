@@ -70,10 +70,10 @@ public class Graph {
         e.setGraph(this);
     }
 
-    public ArrayList getEdgesFrom(Node n) {
+    public ArrayList<Edge> getEdgesFrom(Node n) {
         ArrayList f = (ArrayList) edgesFrom.get(n);
         if (f == null) {
-            f = new ArrayList();
+            f = new ArrayList<Edge>(nodes.size());
             edgesFrom.put(n, f);
         }
         return f;

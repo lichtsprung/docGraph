@@ -65,47 +65,85 @@ public class ModuleExtractor {
             String separator = null;
 
             if (tmp[0].contains("Medieninformatik")) {
-                separator = " ggf.";
+                separator = "ggf.";
+                for (int i = 1; i < tmp.length; i++) {
+                    String name = tmp[i].substring(0, tmp[i].indexOf(separator)) + " (" + nameExtension + ")";
+                    System.out.println("Extracting content from class: " + name);
+                    String description = tmp[i].substring(tmp[i].indexOf(separator), tmp[i].length());
+
+                    int start = (description.indexOf("Angestrebte Lernergebnisse") < 0) ? description.indexOf("Inhalt") : description.indexOf("Angestrebte Lernergebnisse");
+                    int end = (description.indexOf("Studien-/") < 0) ? description.length() : description.indexOf("Studien-/");
+                    description = description.substring(start, end);
+                    description = description.replaceAll("Lernziele/Kompetenzen:", "");
+                    description = description.replaceAll("Inhalt:", "");
+                    description = description.replaceAll("•", "");
+                    description = description.replaceAll("-\n", "");
+                    description = description.replaceAll("\n", " ");
+                    description = description.replaceAll("[0-9].", "");
+                    description = description.replaceAll("_", "");
+                    description = description.replaceAll(" o ", "");
+                    description = description.replaceAll(";", "");
+                    description = description.replaceAll(":", "");
+                    description = description.replaceAll("\\(", "");
+                    description = description.replaceAll("\\)", "");
+                    description = description.replaceAll("\\.\\.", "");
+                    description = description.replaceAll("[a-z]\\.", "");
+                    description = description.replaceAll("&", " ");
+                    description = description.replaceAll(",", " ");
+                    description = description.replaceAll("ii.", " ");
+
+
+                    name = name.replaceAll(":", "");
+                    String tokens[] = description.toLowerCase().split(" ");
+                    for (int k = 0; k < tokens.length; k++) {
+                        tokens[k].trim();
+                    }
+
+
+                    modules.add(new Module(name, description, tokens));
+                }
             } else {
                 separator = "\n";
-            }
 
-            for (int i = 1; i < tmp.length; i++) {
-                String name = tmp[i].substring(0, tmp[i].indexOf(separator)) + " (" + nameExtension + ")";
-//                System.out.println("Extracting content from class: " + name);
-                String description = tmp[i].substring(tmp[i].indexOf(separator), tmp[i].length());
+                for (int i = 1; i < tmp.length; i++) {
+                    String name = tmp[i].substring(0, tmp[i].indexOf(separator)) + " (" + nameExtension + ")";
+                    System.out.println("Extracting content from class: " + name);
+                    String description = tmp[i].substring(tmp[i].indexOf(separator), tmp[i].length());
 
-                int start = description.indexOf("Lernziele");
-                int end = (description.indexOf("Studien-/") < 0) ? description.length() : description.indexOf("Studien-/");
-                description = description.substring(start, end);
-                description = description.replaceAll("Lernziele/Kompetenzen:", "");
-                description = description.replaceAll("Inhalt:", "");
-                description = description.replaceAll("•", "");
-                description = description.replaceAll("-\n", "");
-                description = description.replaceAll("\n", " ");
-                description = description.replaceAll("[0-9].", "");
-                description = description.replaceAll("_", "");
-                description = description.replaceAll(" o ", "");
-                description = description.replaceAll(";", "");
-                description = description.replaceAll(":", "");
-                description = description.replaceAll("\\(", "");
-                description = description.replaceAll("\\)", "");
-                description = description.replaceAll("\\.\\.", "");
-                description = description.replaceAll("[a-z]\\.", "");
-                description = description.replaceAll("&", " ");
-                description = description.replaceAll(",", " ");
-                description = description.replaceAll("ii.", " ");
+                    int start = description.indexOf("Lernziele");
+                    int end = (description.indexOf("Studien-/") < 0) ? description.length() : description.indexOf("Studien-/");
+                    description = description.substring(start, end);
+                    description = description.replaceAll("Lernziele/Kompetenzen:", "");
+                    description = description.replaceAll("Inhalt:", "");
+                    description = description.replaceAll("•", "");
+                    description = description.replaceAll("-\n", "");
+                    description = description.replaceAll("\n", " ");
+                    description = description.replaceAll("[0-9].", "");
+                    description = description.replaceAll("_", "");
+                    description = description.replaceAll(" o ", "");
+                    description = description.replaceAll(";", "");
+                    description = description.replaceAll(":", "");
+                    description = description.replaceAll("\\(", "");
+                    description = description.replaceAll("\\)", "");
+                    description = description.replaceAll("\\.\\.", "");
+                    description = description.replaceAll("[a-z]\\.", "");
+                    description = description.replaceAll("&", " ");
+                    description = description.replaceAll(",", " ");
+                    description = description.replaceAll("ii.", " ");
 
 
-                name = name.replaceAll(":", "");
-                String tokens[] = description.toLowerCase().split(" ");
-                for (int k = 0; k < tokens.length; k++) {
-                    tokens[k].trim();
+                    name = name.replaceAll(":", "");
+                    String tokens[] = description.toLowerCase().split(" ");
+                    for (int k = 0; k < tokens.length; k++) {
+                        tokens[k].trim();
+                    }
+
+
+                    modules.add(new Module(name, description, tokens));
                 }
-
-
-                modules.add(new Module(name, description, tokens));
             }
+
+
         }
     }
 
