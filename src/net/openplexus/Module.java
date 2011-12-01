@@ -28,7 +28,14 @@ public class Module {
      * Der gesamte Text in einzelnen Tokens.
      */
     protected String[] tokens;
+    /**
+     * Der Termvektor des Moduls.
+     */
     protected List<TVComponent> featureVector;
+    /**
+     * Ähnlichkeitsvektor, der die Ähnlichkeiten zu den anderen Modulen
+     * speichert.
+     */
     protected HashMap<Module, Double> similarities;
 
     /**
@@ -86,5 +93,9 @@ public class Module {
             }
         }
         return sim;
+    }
+
+    public int getTermCount(String term) {
+        return terms.getCount(term);
     }
 }

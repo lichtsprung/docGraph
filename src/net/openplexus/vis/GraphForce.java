@@ -1,5 +1,6 @@
 package net.openplexus.vis;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 import net.openplexus.Module;
@@ -171,8 +172,8 @@ public class GraphForce extends PApplet {
         }
 
         for (int i = 0; i < nEdges; i++) {
-            Node a = (Node) graph.getNodes().get((int) random(graph.getNodes().size()));
-            Node b = (Node) graph.getNodes().get((int) random(graph.getNodes().size()));
+            Node a = graph.getNodes().get((int) random(graph.getNodes().size()));
+            Node b = graph.getNodes().get((int) random(graph.getNodes().size()));
             if (a != b && !(graph.isConnected(a, b))) {
                 SpringEdge e = new SpringEdge(a, b, this);
                 e.setNaturalLength(10 + random(90));
@@ -183,7 +184,7 @@ public class GraphForce extends PApplet {
         return graph;
     }
 
-    private Graph buildSimilarityGraph() {
+    private Graph buildSimilarityGraph(){
         test = new TestMain();
         Graph g = new Graph();
 
@@ -191,7 +192,7 @@ public class GraphForce extends PApplet {
         for (int i = 0; i < test.getModules().size(); i++) {
             ForcedNode n = new ForcedNode(new Vector3D(-2 * W + random(4 * W), -H * 2 + random(4 * H), 0), this);
             n.setLabel(test.getModules().get(i).getName());
-            n.setMass(8f);
+            n.setMass(3f);
             g.addNode(n.label, n);
         }
 

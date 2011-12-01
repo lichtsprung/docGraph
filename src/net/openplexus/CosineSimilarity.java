@@ -15,12 +15,12 @@ public class CosineSimilarity {
         List<TVComponent> tv2 = m2.featureVector;
         double length1 = 0;
         for (TVComponent c : tv1) {
-            length1 += c.getCount() * c.getCount();
+            length1 += c.getWeightedComponent() * c.getWeightedComponent();
         }
 
         double length2 = 0;
         for (TVComponent c : tv2) {
-            length2 += c.getCount() * c.getCount();
+            length2 += c.getWeightedComponent() * c.getWeightedComponent();
         }
 
         length1 = Math.sqrt(length1);
@@ -29,7 +29,7 @@ public class CosineSimilarity {
         assert tv1.size() == tv2.size();
         double dot = 0;
         for (int i = 0; i < tv1.size(); i++) {
-            dot += tv1.get(i).getCount() * tv2.get(i).getCount();
+            dot += tv1.get(i).getWeightedComponent() * tv2.get(i).getWeightedComponent();
         }
 
 

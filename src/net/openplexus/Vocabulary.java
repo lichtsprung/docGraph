@@ -1,6 +1,7 @@
 package net.openplexus;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Diese Klasse verwaltet das gemeinsame Vokabular aller geladener Dokumente. Es
@@ -13,13 +14,17 @@ public class Vocabulary {
 
     private Set<String> vocabulary;
     private List<String> sortedVocabulary;
+    private HashMap<String, Set<Module>> invertedIndex;
+    private Set<Module> modules;
 
     /**
      * Das gemeinsame Vokabular aller Dokumente.
      */
     public Vocabulary() {
-        vocabulary = new HashSet<String>();
-        sortedVocabulary = new ArrayList<String>();
+        vocabulary = new HashSet<String>(1000);
+        sortedVocabulary = new ArrayList<String>(1000);
+        invertedIndex = new HashMap<String, Set<Module>>(1000);
+        modules = new HashSet<Module>(150);
     }
 
     /**
@@ -59,10 +64,22 @@ public class Vocabulary {
      */
     public void addTerms(Module m) {
 //        System.out.println("Finding collocations for class: " + m.name);
+        modules.add(m);
 
         TermFilter filter = new TermFilter(m, 0.50);
         vocabulary.addAll(filter.getTerms());
         updateSortedVocabulary();
+
+        for (Object o : filter.getTerms().uniqueSet()) {
+            String term = (String) o;
+            if (invertedIndex.containsKey(term)) {
+                invertedIndex.get(term).add(m);
+            } else {
+                HashSet<Module> ms = new HashSet<Module>(150);
+                ms.add(m);
+                invertedIndex.put(term, ms);
+            }
+        }
 
     }
 
@@ -93,12 +110,14 @@ public class Vocabulary {
 
         for (String s : sortedVocabulary) {
             if (module.terms.contains(s)) {
-                tv.add(new TVComponent(s, module.terms.getCount(s)));
+                double weight = module.getTermCount(s) * Math.log(modules.size() / invertedIndex.get(s).size());
+                tv.add(new TVComponent(s, module.terms.getCount(s), weight));
             } else {
-                tv.add(new TVComponent(s, 0));
+                tv.add(new TVComponent(s, 0, 0));
             }
         }
 
         return tv;
     }
+    private static final Logger LOG = Logger.getLogger(Vocabulary.class.getName());
 }

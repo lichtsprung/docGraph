@@ -9,10 +9,12 @@ public class TVComponent {
 
     private String term;
     private int count;
+    private double weight;
 
-    public TVComponent(String term, int count) {
+    public TVComponent(String term, int count, double weight) {
         this.term = term;
         this.count = count;
+        this.weight = weight;
     }
 
     public int getCount() {
@@ -23,12 +25,24 @@ public class TVComponent {
         this.count = count;
     }
 
+    public double getWeightedComponent() {
+        return weight * count;
+    }
+
     public String getTerm() {
         return term;
     }
 
     public void setTerm(String term) {
         this.term = term;
+    }
+
+    public double getWeight() {
+        return weight;
+    }
+
+    public void setWeight(double weight) {
+        this.weight = weight;
     }
 
     @Override
