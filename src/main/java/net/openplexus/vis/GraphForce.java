@@ -195,16 +195,17 @@ public class GraphForce extends PApplet {
             n.setMass(3f);
             g.addNode(n.label, n);
         }
-
+        
         for (Module m1 : test.getModules()) {
             for (Module m2 : m1.getSimilarities(0.05, 0.95).keySet()) {
                 if (!m1.equals(m2)) {
+                    
                     double sim = m1.getSimilarities().get(m2);
                     Node a = g.getNode(m1.getName());
                     Node b = g.getNode(m2.getName());
                     if (a != b) {
                         SpringEdge e = new SpringEdge(a, b, this);
-                        e.setNaturalLength(1000 - (float) (1000 * sim));
+                        e.setNaturalLength(800 - (float) (800 * sim));
                         g.addEdge(e);
                     }
                 }

@@ -110,7 +110,7 @@ public class Vocabulary {
 
         for (String s : sortedVocabulary) {
             if (module.terms.contains(s)) {
-                double weight = module.getTermCount(s) * Math.log(modules.size() / invertedIndex.get(s).size());
+                double weight = (module.getTermCount(s) / (double) module.getTermCount()) * Math.log(modules.size() / invertedIndex.get(s).size());
                 tv.add(new TVComponent(s, module.terms.getCount(s), weight));
             } else {
                 tv.add(new TVComponent(s, 0, 0));

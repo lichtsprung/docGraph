@@ -92,10 +92,10 @@ public class TermFilter {
         }
 
         // Sammeln der n-gramme
-        collectTuples();
+//         collectTuples();
 
         // Berechnen der log-likelihood
-        calcSig();
+//         calcSig();
 
     }
 

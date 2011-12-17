@@ -88,7 +88,8 @@ public class Module {
     public HashMap<Module, Double> getSimilarities(double min, double max) {
         HashMap<Module, Double> sim = new HashMap<Module, Double>(similarities.size());
         for (Module m : similarities.keySet()) {
-            if (similarities.get(m) > min && similarities.get(m) < max) {
+            if (similarities.get(m) >= min && similarities.get(m) <= max) {
+                System.out.println(similarities.get(m));
                 sim.put(m, similarities.get(m));
             }
         }
@@ -97,5 +98,9 @@ public class Module {
 
     public int getTermCount(String term) {
         return terms.getCount(term);
+    }
+
+    public int getTermCount() {
+        return terms.uniqueSet().size();
     }
 }

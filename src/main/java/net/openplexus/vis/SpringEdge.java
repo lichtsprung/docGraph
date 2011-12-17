@@ -7,7 +7,7 @@ import processing.core.PApplet;
 //banksean at yahoo
 public class SpringEdge extends Edge {
 
-    float k = 0.005f; //stiffness
+    float k = 0.05f; //stiffness
     float a = 100; //natural length.  ehmm uh, huh huh stiffness. natural length ;-)
 
     //This edge sublcass apples a spring force between the two nodes it connects
